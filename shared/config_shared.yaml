@@ -1,0 +1,3 @@
+# Tokenizer的缓存路径
+model_name: "imxly/t5-pegasus-small"
+model_base: "/home/fxb/projects/T5/downloads"
