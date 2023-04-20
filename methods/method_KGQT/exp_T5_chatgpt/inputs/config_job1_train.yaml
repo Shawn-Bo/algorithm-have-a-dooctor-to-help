@@ -2,6 +2,7 @@
 
 gpus : [2, 3]
 batch_size: 64
+max_epochs: 400
 
 # -------- 变量参数 --------
 
@@ -15,7 +16,6 @@ path_read_test_csv: "../stores/test_df.csv"
 model_name: "imxly/t5-pegasus-small"
 model_base: "/home/fxb/projects/T5/downloads"
 
-max_epochs: 3
 
 cache_dir_base: "/home/fxb/projects/T5/downloads"
 checkpoint_path: "../outputs"
