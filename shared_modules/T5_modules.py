@@ -78,7 +78,7 @@ class T5QTDataset(Dataset):
     def __getitem__(self, index):
         data_row = self.data.iloc[index]
         source_encoding = self.tokenizer(
-            data_row[0],
+            data_row[1],
             max_length=self.source_max_token_len,
             padding="max_length",
             truncation=True,
@@ -88,7 +88,7 @@ class T5QTDataset(Dataset):
         )
 
         target_encoding = self.tokenizer(
-            data_row[1],
+            data_row[0],
             max_length=self.target_max_token_len,
             padding="max_length",
             truncation=True,
@@ -98,8 +98,8 @@ class T5QTDataset(Dataset):
         )
         labels = target_encoding["input_ids"]
         return dict(
-            masked_question=data_row[0],
-            origin_question=data_row[1],
+            masked_question=data_row[1],
+            origin_question=data_row[0],
             input_ids=source_encoding["input_ids"].flatten(),
             attention_mask=source_encoding["attention_mask"].flatten(),
             labels=labels.flatten()
