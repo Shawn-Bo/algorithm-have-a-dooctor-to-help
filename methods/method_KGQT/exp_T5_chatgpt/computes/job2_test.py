@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import pandas as pd
@@ -11,7 +12,9 @@ from shared_modules.T5_pegasus_tokenizer import T5_pegasus_tokenizer
 with open("../inputs/config_job2_test.yaml", 'r') as stream:
     config = yaml.safe_load(stream)
 
-list_test = pd.read_csv(config["path_read_test_csv"], names=["nlq", "tsq"]).head(32).values.tolist()
+logging.basicConfig(filename=config["report_path"], filemode="w", format="%(asctime)s %(name)s:%(levelname)s:%(message)s", datefmt="%d-%M-%Y %H:%M:%S", level=logging.DEBUG)
+
+list_test = pd.read_csv(config["path_read_test_csv"], names=["nlq", "tsq"]).values.tolist()
 num_test = len(list_test)
 test_batch_size = config["test_batch_size"]
 
@@ -81,8 +84,9 @@ predict_Pids_all = []
 
 for i in range(0, num_test, test_batch_size):
     test_batch = list_test[i:i + test_batch_size]
-    acutal_nlqs = [pair[0] for pair in test_batch]
-    actual_tsqs = [pair[1] for pair in test_batch]
+    
+    actual_tsqs = [pair[0] for pair in test_batch]
+    acutal_nlqs = [pair[1] for pair in test_batch]
     # 从实际的tsq中获取 P_list
     actual_S_list, actual_P_list = TSQlist_to_Slist_Plist(actual_tsqs)
     
@@ -90,27 +94,24 @@ for i in range(0, num_test, test_batch_size):
     # 从预测的 tsqs 中获取预测的 P_list
     predict_S_list, predict_P_list = TSQlist_to_Slist_Plist(predict_tsqs)
     
-    
     actual_Pids_all.extend(actual_P_list)
     predict_Pids_all.extend(predict_P_list)
     
-
 # compute precision, recall, f1-score and support for each class
 precision, recall, f1_score, support = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average=None, zero_division=1)
 
-# print precision, recall, f1-score and support for each class
+# logging.info precision, recall, f1-score and support for each class
 for i in range(len(precision)):
-    print("Class {}: Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}, Support = {}".format(i, precision[i], recall[i], f1_score[i], support[i]))
+    logging.info("Class {}: Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}, Support = {}".format(i, precision[i], recall[i], f1_score[i], support[i]))
 
 # compute macro-averaged precision, recall, f1-score
 macro_precision, macro_recall, macro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='macro', zero_division=1)
-print("Macro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(macro_precision, macro_recall, macro_f1_score))
+logging.info("Macro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(macro_precision, macro_recall, macro_f1_score))
 
 # compute micro-averaged precision, recall, f1-score
 micro_precision, micro_recall, micro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='micro', zero_division=1)
 
-print("Micro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(micro_precision, micro_recall, micro_f1_score))
-    
+logging.info("Micro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(micro_precision, micro_recall, micro_f1_score))
     
     
 
