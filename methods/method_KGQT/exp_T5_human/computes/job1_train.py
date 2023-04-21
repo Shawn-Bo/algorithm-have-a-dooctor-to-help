@@ -27,7 +27,7 @@ LOGGING_NAME = config["logging_name"]
 GPUS = config["gpus"]
 
 # 读取训练数据
-train_df = pd.read_csv(config["path_read_train_csv"], names=["masked_question", "origin_question"]).head(64)
+train_df = pd.read_csv(config["path_read_train_csv"], names=["masked_question", "origin_question"])
 test_df = pd.read_csv(config["path_read_test_csv"], names=["masked_question", "origin_question"])
 
 # 加载数据模块
@@ -60,7 +60,8 @@ trainer = pl.Trainer(
     max_epochs=MAX_EPOCHS,
     gpus=GPUS,
     progress_bar_refresh_rate=30,
-    accelerator="ddp"
+    accelerator="ddp",
+    check_val_every_n_epoch=10
 )
 
 trainer.fit(model, data_module)

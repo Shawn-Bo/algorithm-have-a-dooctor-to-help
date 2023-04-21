@@ -5,6 +5,7 @@
 """
 
 import math
+import random
 from pathlib import Path
 
 import pandas as pd
@@ -27,9 +28,11 @@ def generate_datasets_df(train_mode):
     df_chatgpt_all = extract_questions_and_answers(Path(config["path_read_chatgpt_all"]))
     df_human_all = extract_questions_and_answers(Path(config["path_read_human_all"]))
 
-    # 将人工数据集分割为训练集和测试集
-    split_index = int(math.floor(0.4 * df_human_all.shape[0]))  # 计算分割点的位置
-    df_human_test = df_human_all.sample(n=split_index)
+    # 将人工数据集分割为训练集和测试集——按照S和P划分    
+    all_tsqs = df_human_all["masked_question"].drop_duplicates().reset_index(drop=True).to_list()  # 长度为356
+    test_tsqs = random.sample(all_tsqs, math.floor(0.4 * len(all_tsqs)))
+    
+    df_human_test = df_human_all[df_human_all["masked_question"].isin(test_tsqs)]
     df_human_train = df_human_all.drop(df_human_test.index)
 
     # 提取训练集
