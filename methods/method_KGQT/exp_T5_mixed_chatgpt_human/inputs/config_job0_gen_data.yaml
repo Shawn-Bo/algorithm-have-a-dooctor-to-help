@@ -1,0 +1,11 @@
+# ------- 变量参数 -------
+
+mode_train_dataset : "human60p_only"
+
+# ------- 默认参数 -------
+
+path_read_chatgpt_all : "../../../../shared_data/chatgpt_all.txt"
+path_read_human_all : "../../../../shared_data/human_all.txt"
+
+path_write_train_csv: "../stores/train_df.csv"
+path_write_test_csv: "../stores/test_df.csv"

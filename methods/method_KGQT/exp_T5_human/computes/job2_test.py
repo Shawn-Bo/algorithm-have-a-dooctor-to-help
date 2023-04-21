@@ -1,4 +1,6 @@
+import json
 import logging
+from pathlib import Path
 from typing import List
 
 import pandas as pd
@@ -19,8 +21,6 @@ num_test = len(list_test)
 test_batch_size = config["test_batch_size"]
 
 dict_P2id = {'患病概率': 0, '所属科室': 1, '推荐药物': 2, '推荐食谱': 3, '描述': 4, '传播方式': 5, '好评药物': 6, '就诊科室': 7, '常用药物': 8, '并发症': 9, '易患人群': 10, '是否纳入医保': 11, '检查项目': 12, '治愈概率': 13, '治疗方法': 14, '治疗时长': 15, '治疗费用': 16, '病因': 17, '症状': 18, '诊断检查': 19, '预防方法': 20, '宜吃': 21, '忌吃': 22, '生产药品': 23, '目录': 24}
-
-labels = [i for i in range(25)]
 
 DEVICE = config["gpu"]
 
@@ -77,7 +77,15 @@ def TSQlist_to_Slist_Plist(tsq_list: List[str]):
                 P_list.append(-1)
     return S_list, P_list
 
-trained_model = T5Module.load_from_checkpoint(config["checkpoint_read_path"])
+ckpt_files = sorted(Path(config["dir_read_checkpoint"]).glob('*.ckpt'), key=lambda f: f.stat().st_mtime, reverse=True)
+# 取最新的文件
+if ckpt_files:
+    latest_ckpt_file = ckpt_files[0]
+    logging.info(f"The latest checkpoint file is: {latest_ckpt_file}")
+else:
+    logging.info("No checkpoint files found.")
+    exit()
+trained_model = T5Module.load_from_checkpoint(latest_ckpt_file)
 trained_model.to(DEVICE)
 trained_model.freeze()
 
@@ -100,17 +108,21 @@ for i in range(0, num_test, test_batch_size):
     predict_Pids_all.extend(predict_P_list)
     
 # compute precision, recall, f1-score and support for each class
-precision, recall, f1_score, support = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average=None, zero_division=1, labels=labels)
+precision, recall, f1_score, support = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average=None, zero_division=1)
 
 # logging.info precision, recall, f1-score and support for each class
 for i in range(len(precision)):
     logging.info("Class {}: Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}, Support = {}".format(i, precision[i], recall[i], f1_score[i], support[i]))
 
 # compute macro-averaged precision, recall, f1-score
-macro_precision, macro_recall, macro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='macro', zero_division=1, labels=labels)
+macro_precision, macro_recall, macro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='macro', zero_division=1)
 logging.info("Macro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(macro_precision, macro_recall, macro_f1_score))
 
 # compute micro-averaged precision, recall, f1-score
-micro_precision, micro_recall, micro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='micro', zero_division=1, labels=labels)
+micro_precision, micro_recall, micro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='micro', zero_division=1)
 
 logging.info("Micro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(micro_precision, micro_recall, micro_f1_score))
+    
+    
+
+

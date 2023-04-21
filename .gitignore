@@ -6,3 +6,4 @@ shared_data/*
 *.csv
 **/outputs/*
 **/views/*
+**/stores/*

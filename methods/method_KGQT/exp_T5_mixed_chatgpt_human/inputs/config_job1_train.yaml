@@ -1,0 +1,26 @@
+# -------- 灵活参数 --------
+
+gpus : 0  # TODO 用CPU测一下代码能否泡通
+batch_size: 64
+max_epochs: 2
+# -------- 变量参数 --------
+
+
+
+# -------- 默认参数 --------
+
+path_read_train_csv: "../stores/train_df.csv"
+path_read_test_csv: "../stores/test_df.csv"
+
+model_name: "imxly/t5-pegasus-small"
+model_base: "/home/fxb/projects/T5/downloads"
+
+
+cache_dir_base: "/home/fxb/projects/T5/downloads"
+checkpoint_path: "../outputs"
+path_write_training_info: "../outputs/training_info.json"  # 保存了权重文件路径
+
+logging_dir: "../views/"
+logging_name: "T5_chatgpt_only"
+
+
