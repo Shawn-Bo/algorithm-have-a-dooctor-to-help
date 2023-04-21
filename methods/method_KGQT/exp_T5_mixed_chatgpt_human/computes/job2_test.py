@@ -1,5 +1,5 @@
-import json
 import logging
+from pathlib import Path
 from typing import List
 
 import pandas as pd
@@ -76,11 +76,15 @@ def TSQlist_to_Slist_Plist(tsq_list: List[str]):
                 P_list.append(-1)
     return S_list, P_list
 
-# 加载读取权重文件的路径
-with open(config["path_read_training_info"], mode="r") as f:
-    training_info = json.load(f)
-    
-trained_model = T5Module.load_from_checkpoint(training_info["path_best_checkpoint"])
+ckpt_files = sorted(Path(config["dir_read_checkpoint"]).glob('*.ckpt'), key=lambda f: f.stat().st_mtime, reverse=True)
+# 取最新的文件
+if ckpt_files:
+    latest_ckpt_file = ckpt_files[0]
+    logging.info(f"The latest checkpoint file is: {latest_ckpt_file}")
+else:
+    logging.info("No checkpoint files found.")
+    exit()
+trained_model = T5Module.load_from_checkpoint(latest_ckpt_file)
 trained_model.to(DEVICE)
 trained_model.freeze()
 

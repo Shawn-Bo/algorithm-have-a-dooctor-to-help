@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 import pytorch_lightning as pl
 import yaml
@@ -64,11 +62,5 @@ trainer = pl.Trainer(
 )
 
 trainer.fit(model, data_module)
-path_best_checkpoint: str = trainer.state.best_model_checkpoint
+print(f"模型训练完成！训练脚本{__file__}")
 
-print(f"模型训练完成！最佳权重文件为{path_best_checkpoint}")
-
-with open(config["path_write_checkpoint_name"], mode="w") as f:
-    json.dump({
-        "path_best_checkpoint": path_best_checkpoint
-    }, f)

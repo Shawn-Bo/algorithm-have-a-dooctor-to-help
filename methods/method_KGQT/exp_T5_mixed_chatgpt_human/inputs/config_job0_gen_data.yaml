@@ -1,6 +1,6 @@
 # ------- 变量参数 -------
 
-mode_train_dataset : "human60p_only"
+mode_train_dataset : "chatgpt_with_human60p"
 
 # ------- 默认参数 -------
 

@@ -1,10 +1,9 @@
 # -------- 灵活参数 --------
 
-test_batch_size: 96
+test_batch_size: 64
 gpu: "cuda:2"
 
 # -------- 默认参数 --------
 report_path: "../outputs/report.log"
 path_read_test_csv: "../stores/test_df.csv"
-
-path_read_training_info: "../outputs/training_info.json"  # 保存了权重文件路径
+dir_read_checkpoint: "../outputs/"

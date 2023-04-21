@@ -1,8 +1,8 @@
 # -------- 灵活参数 --------
 
-gpus : 0  # TODO 用CPU测一下代码能否泡通
+gpus : [2, 3]  # 0 如果要CPU测试话
 batch_size: 64
-max_epochs: 2
+max_epochs: 400
 # -------- 变量参数 --------
 
 
@@ -18,7 +18,6 @@ model_base: "/home/fxb/projects/T5/downloads"
 
 cache_dir_base: "/home/fxb/projects/T5/downloads"
 checkpoint_path: "../outputs"
-path_write_training_info: "../outputs/training_info.json"  # 保存了权重文件路径
 
 logging_dir: "../views/"
 logging_name: "T5_chatgpt_only"
