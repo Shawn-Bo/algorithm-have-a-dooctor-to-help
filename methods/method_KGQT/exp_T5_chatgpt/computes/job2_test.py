@@ -91,6 +91,8 @@ trained_model.freeze()
 
 actual_Pids_all = []
 predict_Pids_all = []
+actual_S_all = []
+predict_S_all = []
 
 for i in range(0, num_test, test_batch_size):
     test_batch = list_test[i:i + test_batch_size]
@@ -104,8 +106,12 @@ for i in range(0, num_test, test_batch_size):
     # 从预测的 tsqs 中获取预测的 P_list
     predict_S_list, predict_P_list = TSQlist_to_Slist_Plist(predict_tsqs)
     
+    
     actual_Pids_all.extend(actual_P_list)
     predict_Pids_all.extend(predict_P_list)
+    actual_S_all.extend(actual_S_list)
+    predict_S_all.extend(predict_S_list)
+    
     
 # compute precision, recall, f1-score and support for each class
 precision, recall, f1_score, support = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average=None, zero_division=1)
@@ -122,3 +128,12 @@ logging.info("Macro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.
 micro_precision, micro_recall, micro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='micro', zero_division=1)
 
 logging.info("Micro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(micro_precision, micro_recall, micro_f1_score))
+
+# 计算S的准确率 slist和plist一定等长度
+num_correct_S = 0
+num_all_S = len(actual_S_all)
+for i in range(len(actual_S_all)):
+    if actual_S_all[i].lower() == predict_S_all[i].lower():
+        num_correct_S += 1
+
+logging.info("Accuracy of Subject Prediction = {:.3f}".format(num_correct_S/num_all_S))
