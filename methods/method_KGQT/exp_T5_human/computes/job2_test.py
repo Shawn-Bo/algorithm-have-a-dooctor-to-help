@@ -122,7 +122,3 @@ logging.info("Macro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.
 micro_precision, micro_recall, micro_f1_score, _ = precision_recall_fscore_support(actual_Pids_all, predict_Pids_all, average='micro', zero_division=1)
 
 logging.info("Micro-averaged Precision = {:.2f}, Recall = {:.2f}, F1-score = {:.2f}".format(micro_precision, micro_recall, micro_f1_score))
-    
-    
-
-

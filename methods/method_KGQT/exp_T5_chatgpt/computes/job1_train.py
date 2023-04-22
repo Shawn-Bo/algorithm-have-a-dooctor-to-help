@@ -20,7 +20,7 @@ BATCH_SIZE = config["batch_size"]
 MAX_EPOCHS = config["max_epochs"]
 
 LOGGING_DIR = config["logging_dir"]
-LOGGING_NAME = config["logging_name"]
+LOGGING_NAME = config["logging_name"] + str(__file__)
 
 GPUS = config["gpus"]
 

@@ -20,6 +20,6 @@ cache_dir_base: "/home/fxb/projects/T5/downloads"
 checkpoint_path: "../outputs"
 
 logging_dir: "../views/"
-logging_name: "T5_chatgpt_only"
+logging_name: "T5_human"
 
 
