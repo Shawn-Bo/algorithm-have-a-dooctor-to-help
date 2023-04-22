@@ -1,5 +1,6 @@
 # ------- 变量参数 -------
 
+size_train_dataset : "all"  # number 或者 "all"
 mode_train_dataset : "chatgpt_only"
 
 # ------- 默认参数 -------
