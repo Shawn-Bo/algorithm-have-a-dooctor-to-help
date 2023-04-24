@@ -11,9 +11,10 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-with open("../inputs/config_job0_gen_data.yaml", 'r') as stream:
+with open("../inputs/config_job0_gen_data.yaml", 'r', encoding="utf-8") as stream:
     config = yaml.safe_load(stream)
-    
+
+
 def generate_datasets_df(train_mode):
     def extract_questions_and_answers(question_path: Path):
         with question_path.open("r", encoding="utf-8") as f:
@@ -21,7 +22,7 @@ def generate_datasets_df(train_mode):
             for line in f:
                 data_splits = line.replace("\n", "").split(",")
                 data.append([data_splits[0], "".join(data_splits[1:])])
-        return pd.DataFrame(data, columns=["masked_question", "origin_question"], dtype=str) # 这个名称是历史原因
+        return pd.DataFrame(data, columns=["masked_question", "origin_question"], dtype=str)  # 这个名称是历史原因
 
     df_train, df_test = None, None
 
@@ -31,7 +32,7 @@ def generate_datasets_df(train_mode):
     # 将人工数据集分割为训练集和测试集——按照S和P划分    
     all_tsqs = df_human_all["masked_question"].drop_duplicates().reset_index(drop=True).to_list()  # 长度为356
     test_tsqs = random.sample(all_tsqs, math.floor(0.4 * len(all_tsqs)))
-    
+
     df_human_test = df_human_all[df_human_all["masked_question"].isin(test_tsqs)]
     df_human_train = df_human_all.drop(df_human_test.index)
 
