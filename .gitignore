@@ -7,3 +7,4 @@ shared_data/*
 **/outputs/*
 **/views/*
 **/stores/*
+**/*logs/*
