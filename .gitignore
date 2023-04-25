@@ -8,3 +8,4 @@ shared_data/*
 **/views/*
 **/stores/*
 **/wandb/*
+**/*logs/*

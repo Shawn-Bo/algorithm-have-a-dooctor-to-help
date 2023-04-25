@@ -5,7 +5,7 @@ import jieba
 import yaml
 from transformers import BertTokenizer
 
-with next(Path(__file__).parent.glob("config_shared.yaml")).open(mode="r") as stream:
+with next(Path(__file__).parent.glob("config_shared.yaml")).open(mode="r", encoding="utf-8") as stream:
     config = yaml.safe_load(stream)
 
 class T5PegasusTokenizer(BertTokenizer):

@@ -1,27 +1,27 @@
-
-from pathlib import Path
-from pytorch_lightning.loggers import WandbLogger
 import pandas as pd
 import pytorch_lightning as pl
-import yaml
+import torch
 from torch.utils.data import DataLoader, Dataset
-from transformers import AdamW
-from transformers.models.mt5.modeling_mt5 import MT5ForConditionalGeneration
+from transformers import AdamW, BertConfig
+from transformers import BertForSequenceClassification
+from transformers import AutoTokenizer
 
-with next(Path(__file__).parent.glob("config_shared.yaml")).open(mode="r", encoding="utf-8") as stream:
-    config = yaml.safe_load(stream)
-
-
-class T5Module(pl.LightningModule):
-    def __init__(self):
+class BERTQPModule(pl.LightningModule):
+    def __init__(self,
+                 model_name="bert-base-chinese",
+                 num_labels=25,
+                 cache_dir=None,
+                 hidden_dropout_prob=0.5
+                 ):
         super().__init__()
-        MODEL_NAME = config["model_name"]
-        MODEL_BASE = config["model_base"]
-        self.model = MT5ForConditionalGeneration.from_pretrained(
-            MODEL_NAME,
-            cache_dir=f"{MODEL_BASE}/{MODEL_NAME}",
-            return_dict=True)
-        self.model.resize_token_embeddings(50002)
+        bert_config = BertConfig.from_pretrained(
+            model_name,
+            num_labels=num_labels,
+            hidden_dropout_prob=hidden_dropout_prob,
+            cache_dir=cache_dir
+        )
+        self.model = BertForSequenceClassification.from_pretrained(model_name, config=bert_config)
+        self.model.train()
 
     def forward(self, input_ids, attention_mask, labels=None):
         output = self.model(
@@ -57,28 +57,27 @@ class T5Module(pl.LightningModule):
 
     def configure_optimizers(self):
         return AdamW(self.parameters(), lr=0.0001)
-    
-    
-class T5QTDataset(Dataset):
+
+
+class BERTQPDataset(Dataset):
     def __init__(
             self,
             data: pd.DataFrame,
             tokenizer,
-            source_max_token_len: int = 64,
-            target_max_token_len: int = 64
+            source_max_token_len: int = 64
     ):
         self.tokenizer = tokenizer
         self.data = data
         self.source_max_token_len = source_max_token_len
-        self.target_max_token_len = target_max_token_len
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, index):
         data_row = self.data.iloc[index]
+        nlq = data_row["nlq"]
         source_encoding = self.tokenizer(
-            data_row[1],
+            nlq,
             max_length=self.source_max_token_len,
             padding="max_length",
             truncation=True,
@@ -86,59 +85,42 @@ class T5QTDataset(Dataset):
             add_special_tokens=True,
             return_tensors="pt"
         )
-
-        target_encoding = self.tokenizer(
-            data_row[0],
-            max_length=self.target_max_token_len,
-            padding="max_length",
-            truncation=True,
-            return_attention_mask=True,
-            add_special_tokens=True,
-            return_tensors="pt"
-        )
-        labels = target_encoding["input_ids"]
+        Pids = torch.tensor(data_row["Pid"])
         return dict(
-            masked_question=data_row[1],
-            origin_question=data_row[0],
+            nlq=nlq,
+            Pid=Pids,
             input_ids=source_encoding["input_ids"].flatten(),
             attention_mask=source_encoding["attention_mask"].flatten(),
-            labels=labels.flatten()
+            labels=Pids.flatten()
         )
-        
-        
-class T5QTDatasetMoudle(pl.LightningDataModule):
+
+
+class BERTQPDataMoudle(pl.LightningDataModule):
     def __init__(
-        self,
-        train_df: pd.DataFrame,
-        test_df: pd.DataFrame,
-        tokenizer,
-        batch_size: int = 8,
-        source_max_token_len: int = 64,
-        target_max_token_len: int = 64
+            self,
+            train_df: pd.DataFrame,
+            test_df: pd.DataFrame,
+            tokenizer,
+            batch_size: int = 8,
+            source_max_token_len: int = 64
     ):
         super().__init__()
-        self.test_dataset = None
-        self.train_dataset = None
         self.batch_size = batch_size
         self.source_max_token_len = source_max_token_len
-        self.target_max_token_len = target_max_token_len
         self.tokenizer = tokenizer
         self.train_df = train_df
         self.test_df = test_df
 
-    def setup(self):
-        self.train_dataset = T5QTDataset(
+        self.train_dataset = BERTQPDataset(
             self.train_df,
             self.tokenizer,
-            self.source_max_token_len,
-            self.target_max_token_len
+            self.source_max_token_len
         )
 
-        self.test_dataset = T5QTDataset(
+        self.test_dataset = BERTQPDataset(
             self.test_df,
             self.tokenizer,
-            self.source_max_token_len,
-            self.target_max_token_len
+            self.source_max_token_len
         )
 
     def train_dataloader(self):
@@ -157,7 +139,6 @@ class T5QTDatasetMoudle(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-
         val_dataloader = DataLoader(
             self.test_dataset,
             batch_size=8,

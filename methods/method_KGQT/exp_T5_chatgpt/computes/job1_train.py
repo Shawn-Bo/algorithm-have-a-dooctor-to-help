@@ -9,7 +9,7 @@ from shared_modules.T5_modules import T5Module, T5QTDatasetMoudle
 from shared_modules.T5_pegasus_tokenizer import T5_pegasus_tokenizer
 
 # 加载配置
-with open("../inputs/config_job1_train.yaml", 'r') as stream:
+with open("../inputs/config_job1_train.yaml", 'r', encoding="utf-8") as stream:
     config = yaml.safe_load(stream)
 
 MODEL_NAME = config["model_name"]
@@ -20,7 +20,7 @@ BATCH_SIZE = config["batch_size"]
 MAX_EPOCHS = config["max_epochs"]
 
 LOGGING_DIR = config["logging_dir"]
-LOGGING_NAME = config["logging_name"] + str(__file__)
+LOGGING_NAME = config["logging_name"]
 
 GPUS = config["gpus"]
 
@@ -54,12 +54,13 @@ logger = WandbLogger()
 
 trainer = pl.Trainer(
     logger=logger,
-    callbacks = [checkpoint_callback, early_stop_callback],
+    callbacks=[checkpoint_callback, early_stop_callback],
     max_epochs=MAX_EPOCHS,
     gpus=GPUS,
     progress_bar_refresh_rate=30,
-    accelerator="ddp",
+    # accelerator="ddp",
+    # check_val_every_n_epoch=10
 )
 
 trainer.fit(model, data_module)
-print("模型训练完成！")
+print(f"模型训练完成！训练脚本{__file__}")
