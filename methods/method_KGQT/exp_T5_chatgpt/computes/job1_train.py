@@ -3,7 +3,7 @@ import pytorch_lightning as pl
 import yaml
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import WandbLogger
 
 from shared_modules.T5_modules import T5Module, T5QTDatasetMoudle
 from shared_modules.T5_pegasus_tokenizer import T5_pegasus_tokenizer
@@ -50,7 +50,7 @@ early_stop_callback = EarlyStopping(
     mode='min'  # 指标越小越好
 )
 
-logger = TensorBoardLogger(LOGGING_DIR, name=LOGGING_NAME)
+logger = WandbLogger()
 
 trainer = pl.Trainer(
     logger=logger,
