@@ -7,7 +7,7 @@
 - train_mode
   - chatgpt_only
   - human_only
-  - （每个实验重复5轮取平均）
+  - （每个实验重复5次取平均）
 
 ## 比较ChatGPT生成数据集和人工标注生成数据集的性能差距
 
